@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MyStory04</string>
+    <string name="image_file">Image File</string>
+    <string name="tell_me_your_story">tell me your story</string>
+    <string name="enter_text_here">Enter text here</string>
+    <string name="title">Title</string>
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera\n</string>
+    <string name="intent_camera">Camera</string>
+</resources>
