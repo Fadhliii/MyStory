@@ -15,21 +15,18 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.mystory04.databinding.ActivityUploadStoryBinding
 import getImageUri
 
-//Gallery button
-//Upload button
-//Camera Button
-
 
 class uploadStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUploadStoryBinding
-    private var currentImageUri: Uri? = null
+    private var currentImageUri: Uri? = null // current image uri is null initially
+    // so that we can check if user has selected image or not
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUploadStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         //
         binding.imageView.setOnClickListener {
-            //open file picker
+            //open dialog if user click on imageview
             alertDialog(this, "Choose Image", "Choose from Gallery or Camera")
         }
         // ! Gallery
@@ -45,28 +42,30 @@ class uploadStoryActivity : AppCompatActivity() {
 
     }
 
+    // give alert dialog if user click on imageview
+
     private fun alertDialog(context: Context, title: String, message: String) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle(title)
         builder.setMessage(message)
         builder.setPositiveButton("Upload Image Via Gallery") { dialog, _ ->
-            startGallery()
+            startGallery() // start gallery
             dialog.dismiss()
         }
         builder.setNegativeButton("Upload Image Via Camera") { dialog, _ ->
-            startCamera()
+            startCamera() // start camera
             dialog.dismiss()
         }
-        val dialog = builder.create()
-        dialog.show()
+        val dialog = builder.create() // create dialog
+        dialog.show() // show dialog
     }
 
     // launch gallery
     private val launcherGallery = registerForActivityResult(
             ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
-        if (uri != null) {
+        if (uri != null) { // if uri is not null then set currentImageUri to uri
             currentImageUri = uri
-            showImage()
+            showImage() // show image to imageview
         }
         else {
             Log.d("Photo Picker", "No Media Selected")
@@ -76,7 +75,7 @@ class uploadStoryActivity : AppCompatActivity() {
     // show image to imageview
     private fun showImage() {
         val uri = currentImageUri
-        if (uri != null) {
+        if (uri != null) { // if uri is not null then set image to imageview using uri path
             binding.imageView.setImageURI(uri)
             Log.d("Image URI", "No media selected")
         }
@@ -86,10 +85,14 @@ class uploadStoryActivity : AppCompatActivity() {
     private fun startGallery() {
         launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
+
+    // start camera from launcherIntentCamera
     private fun startCamera() {
-        currentImageUri = getImageUri(this)
-        launcherIntentCamera.launch(currentImageUri!!)
+        currentImageUri = getImageUri(this) // get image uri
+        launcherIntentCamera.launch(currentImageUri!!) // launch camera intent with image uri
     }
+
+    // launch camera intent
     private val launcherIntentCamera = registerForActivityResult(
             ActivityResultContracts.TakePicture()
     ) { isSuccess ->
