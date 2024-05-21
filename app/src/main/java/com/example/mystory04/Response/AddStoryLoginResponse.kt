@@ -1,8 +1,8 @@
-package com.example.mystory04
+package com.example.mystory04.Response
 
 import com.google.gson.annotations.SerializedName
-
-data class AddNewStoryResponse(
+// User only
+data class AddStoryLoginResponse(
 
 	@field:SerializedName("error")
 	val error: Boolean? = null,

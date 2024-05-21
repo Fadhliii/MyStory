@@ -82,5 +82,7 @@ dependencies {
     implementation("io.coil-kt:coil:1.4.0")
     //coil image
     implementation("io.coil-kt:coil:1.4.0")
+    // sec
+    implementation ("androidx.security:security-crypto:1.0.0-rc02")
 
 }
