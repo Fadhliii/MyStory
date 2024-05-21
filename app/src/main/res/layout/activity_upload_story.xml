@@ -44,6 +44,7 @@
 
     <com.google.android.material.textfield.TextInputEditText
         android:layout_width="match_parent"
+        android:id="@+id/inputTitle"
         android:layout_height="wrap_content"
         android:hint="@string/title"
         android:paddingStart="40dp" />
@@ -97,8 +98,20 @@
       android:backgroundTint="@color/black"
       android:text="Button"
       app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
-      app:layout_constraintStart_toEndOf="@+id/button3"
+      app:layout_constraintStart_toEndOf="@+id/btnCamera"
       app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+
+  <ProgressBar
+      android:id="@+id/progressBar2"
+      style="?android:attr/progressBarStyleLarge"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:indeterminate="true"
+      android:visibility="visible"
+      app:layout_constraintBottom_toBottomOf="@+id/textInputLayout2"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/imageView"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

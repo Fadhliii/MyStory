@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.Manifest
 import android.content.Context
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mystory04.databinding.ActivityUploadStoryBinding
 import getImageUri
+import uriToFile
 
 
 class uploadStoryActivity : AppCompatActivity() {
@@ -37,13 +39,11 @@ class uploadStoryActivity : AppCompatActivity() {
         binding.btnCamera.setOnClickListener() {
             startCamera()
             //open camera
-            Toast.makeText(this, "camera need to open", Toast.LENGTH_SHORT).show()
         }
 
     }
 
     // give alert dialog if user click on imageview
-
     private fun alertDialog(context: Context, title: String, message: String) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle(title)
@@ -99,5 +99,21 @@ class uploadStoryActivity : AppCompatActivity() {
         if (isSuccess) {
             showImage()
         }
+    }
+
+    private fun uploadImage(){
+        currentImageUri?.let { uri ->
+            val imageFile = uriToFile(uri, this)
+            Log.d("Image Path", "showImage : ${imageFile.path}")
+            showLoading(true)
+        }
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+       binding.progressBar2.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
