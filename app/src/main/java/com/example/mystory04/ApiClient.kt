@@ -21,9 +21,9 @@ object ApiClient {
         .build()
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://story-api.dicoding.dev")
+        .baseUrl("https://story-api.dicoding.dev/v1/")
         .client(okHttpClient)   // set the OkHttpClient
         .addConverterFactory(GsonConverterFactory.create()) // convert JSON to model
         .build() // create the Retrofit instance
-    val apiService = retrofit.create<ApiService>() // create an instance of the ApiService
+    val getApiService = retrofit.create<ApiService>() // create an instance of the ApiService
 }

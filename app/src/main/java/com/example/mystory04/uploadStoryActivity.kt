@@ -3,24 +3,32 @@ package com.example.mystory04
 
 import android.net.Uri
 import android.os.Bundle
-import android.Manifest
 import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.mystory04.Response.AddNewStoryResponse
 import com.example.mystory04.databinding.ActivityUploadStoryBinding
+import com.google.gson.Gson
 import getImageUri
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
 import uriToFile
 
 
-class uploadStoryActivity : AppCompatActivity() {
+class UploadStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUploadStoryBinding
     private var currentImageUri: Uri? = null // current image uri is null initially
+
     // so that we can check if user has selected image or not
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,19 +109,48 @@ class uploadStoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadImage(){
-        currentImageUri?.let { uri ->
-            val imageFile = uriToFile(uri, this)
-            Log.d("Image Path", "showImage : ${imageFile.path}")
-            showLoading(true)
-        }
-    }
-
     private fun showLoading(isLoading: Boolean) {
-       binding.progressBar2.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun uploadImage() {
+        currentImageUri?.let { uri ->
+            val imageFile = uriToFile(uri, this)
+            Log.d("Image Path", "showImage : ${imageFile.path}")
+            val description = "This is a test description"
+            val requestBody = description.toRequestBody("text/plain".toMediaType())
+            val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
+            val multipartBody = MultipartBody.Part.createFormData(
+                    "photo", imageFile.name, requestImageFile
+            )
+            showLoading(true)
+            // lifecycleScope is used to launch a coroutine in the lifecycle of the activity
+            lifecycleScope.launch {
+                try {
+                    val apiService = ApiClient.getApiService
+                    val successResponse = apiService.addNewStory(multipartBody, requestBody)
+                    successResponse.message?.let { showToast(it) }
+                    showLoading(false)
+                } catch (e: HttpException) { // if error occurs
+                    val errorBody = e.response()?.errorBody()?.string()
+                    val errorResponse = Gson().fromJson(errorBody, AddNewStoryResponse::class.java)
+                    errorResponse.message?.let { showToast(it) }
+                    showLoading(false)
+                }
+            }
+
+
+            //            // Get user input from TextInputEditText fields
+            //            val inputDesc = binding.textInputLayout2.editText?.text.toString()
+            //            val inputTitle = binding.textInputLayout1.editText?.text.toString()
+            //
+            //            // Convert user input to RequestBody
+            //            val description = RequestBody.create(MultipartBody.FORM, inputDesc)
+            //            val title = RequestBody.create(MultipartBody.FORM, inputTitle)
+        }
     }
 }

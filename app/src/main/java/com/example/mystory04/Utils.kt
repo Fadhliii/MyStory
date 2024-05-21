@@ -46,6 +46,12 @@ private fun getImageUriForPreQ(context: Context): Uri {
     )
 }
 
+// this function is used to create custom temp file to save image in external storage for cam and gal
+fun createCustomTempFile(context: Context): File {
+    val filesDir = context.externalCacheDir
+    return File.createTempFile(timeStamp, ".jpg", filesDir)
+}
+
 // this function is to convert uri to file so it can be upload to server using retrofit
     fun uriToFile(imageUri: Uri, context: Context): File {
         val myFile = createCustomTempFile(context)
