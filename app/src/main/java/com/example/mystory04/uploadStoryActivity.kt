@@ -168,7 +168,7 @@ class UploadStoryActivity : AppCompatActivity() {
             // lifecycleScope is used to launch a coroutine in the lifecycle of the activity
             lifecycleScope.launch {
                 try {
-                    val apiService = ApiConfig.getApiService()
+                    val apiService = ApiClient.getApiService
                     val successResponse = apiService.addNewStory(multipartBody, requestBody)
                     Toast.makeText(
                             this@UploadStoryActivity,
