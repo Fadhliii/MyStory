@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.fab.setOnClickListener {
             // Handle the click jump to the uploadStoryActivity
-            startActivity(Intent(this, uploadStoryActivity::class.java))
+            startActivity(Intent(this, UploadStoryActivity::class.java))
         }
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

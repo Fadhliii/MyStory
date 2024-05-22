@@ -8,4 +8,5 @@
     <string name="camera">Camera\n</string>
     <string name="intent_camera">Camera</string>
     <string name="empy_image_warning">Empy Image WARNING !!!!!!!!!!!!!!!</string>
+    <string name="empty_image_warning">Empty image</string>
 </resources>

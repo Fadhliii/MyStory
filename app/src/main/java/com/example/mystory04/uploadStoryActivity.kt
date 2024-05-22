@@ -21,6 +21,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import reduceFileImage
 import retrofit2.HttpException
 import uriToFile
 
@@ -47,6 +48,10 @@ class UploadStoryActivity : AppCompatActivity() {
         binding.btnCamera.setOnClickListener() {
             startCamera()
             //open camera
+        }
+        binding.progressBar.visibility = View.GONE
+        binding.Upload.setOnClickListener {
+            uploadImage()
         }
 
     }
@@ -82,10 +87,9 @@ class UploadStoryActivity : AppCompatActivity() {
 
     // show image to imageview
     private fun showImage() {
-        val uri = currentImageUri
-        if (uri != null) { // if uri is not null then set image to imageview using uri path
-            binding.imageView.setImageURI(uri)
-            Log.d("Image URI", "No media selected")
+        currentImageUri?.let {
+            Log.d("Image URI", "showImage: $it")
+            binding.imageView.setImageURI(it)
         }
     }
 
@@ -109,9 +113,9 @@ class UploadStoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-    }
+    //    private fun showLoading(isLoading: Boolean) {
+    //        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    //    }
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -119,27 +123,36 @@ class UploadStoryActivity : AppCompatActivity() {
 
     private fun uploadImage() {
         currentImageUri?.let { uri ->
-            val imageFile = uriToFile(uri, this)
-            Log.d("Image Path", "showImage : ${imageFile.path}")
-            val description = "This is a test description"
+            val imageFile = uriToFile(uri, this).reduceFileImage()
+            Log.d("Image File", "showImage: ${imageFile.path}")
+            val description = "Ini adalah deksripsi gambar"
+
+            //            showLoading(true)
+
             val requestBody = description.toRequestBody("text/plain".toMediaType())
             val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
             val multipartBody = MultipartBody.Part.createFormData(
-                    "photo", imageFile.name, requestImageFile
+                    "photo",
+                    imageFile.name,
+                    requestImageFile
             )
-            showLoading(true)
             // lifecycleScope is used to launch a coroutine in the lifecycle of the activity
             lifecycleScope.launch {
                 try {
-                    val apiService = ApiClient.getApiService
+                    val apiService = ApiConfig.getApiService()
                     val successResponse = apiService.addNewStory(multipartBody, requestBody)
-                    successResponse.message?.let { showToast(it) }
-                    showLoading(false)
-                } catch (e: HttpException) { // if error occurs
+                    Toast.makeText(
+                            this@UploadStoryActivity,
+                            "Image uploaded successfully: ${successResponse.message}",
+                            Toast.LENGTH_SHORT).show()
+
+                } catch (e: HttpException) {
                     val errorBody = e.response()?.errorBody()?.string()
                     val errorResponse = Gson().fromJson(errorBody, AddNewStoryResponse::class.java)
-                    errorResponse.message?.let { showToast(it) }
-                    showLoading(false)
+                    Toast.makeText(
+                            this@UploadStoryActivity,
+                            "Failed to upload image: ${errorResponse.message}",
+                            Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -151,6 +164,6 @@ class UploadStoryActivity : AppCompatActivity() {
             //            // Convert user input to RequestBody
             //            val description = RequestBody.create(MultipartBody.FORM, inputDesc)
             //            val title = RequestBody.create(MultipartBody.FORM, inputTitle)
-        }
+        } ?: showToast(getString(R.string.empty_image_warning))
     }
 }
