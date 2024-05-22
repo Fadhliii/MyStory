@@ -1,16 +1,20 @@
 package com.example.mystory04
 
 
+import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.mystory04.Response.AddNewStoryResponse
 import com.example.mystory04.databinding.ActivityUploadStoryBinding
@@ -28,14 +32,35 @@ import uriToFile
 
 class UploadStoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUploadStoryBinding
-    private var currentImageUri: Uri? = null // current image uri is null initially
+    private var currentImageUri: Uri? = null
+
+    private val requestPermissionLauncher =
+            registerForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    Toast.makeText(this, "Permission request granted", Toast.LENGTH_LONG).show()
+                }
+                else {
+                    Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
+                }
+            }
+
+    private fun allPermissionsGranted() =
+            ContextCompat.checkSelfPermission(
+                    this,
+                    REQUIRED_PERMISSION
+            ) == PackageManager.PERMISSION_GRANTED
+
 
     // so that we can check if user has selected image or not
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUploadStoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //
+        if (!allPermissionsGranted()) {
+            requestPermissionLauncher.launch(REQUIRED_PERMISSION)
+        }
         binding.imageView.setOnClickListener {
             //open dialog if user click on imageview
             alertDialog(this, "Choose Image", "Choose from Gallery or Camera")
@@ -75,13 +100,14 @@ class UploadStoryActivity : AppCompatActivity() {
 
     // launch gallery
     private val launcherGallery = registerForActivityResult(
-            ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
-        if (uri != null) { // if uri is not null then set currentImageUri to uri
+            ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
             currentImageUri = uri
-            showImage() // show image to imageview
+            showImage()
         }
         else {
-            Log.d("Photo Picker", "No Media Selected")
+            Log.d("Photo Picker", "No media selected")
         }
     }
 
@@ -100,9 +126,12 @@ class UploadStoryActivity : AppCompatActivity() {
 
     // start camera from launcherIntentCamera
     private fun startCamera() {
-        currentImageUri = getImageUri(this) // get image uri
-        launcherIntentCamera.launch(currentImageUri!!) // launch camera intent with image uri
+        currentImageUri = getImageUri(this)
+        launcherIntentCamera.launch(currentImageUri!!)
+        Log.d("Image URI : ", "startCamera: $currentImageUri")
+        showToast("Camera Opened")
     }
+
 
     // launch camera intent
     private val launcherIntentCamera = registerForActivityResult(
@@ -165,5 +194,8 @@ class UploadStoryActivity : AppCompatActivity() {
             //            val description = RequestBody.create(MultipartBody.FORM, inputDesc)
             //            val title = RequestBody.create(MultipartBody.FORM, inputTitle)
         } ?: showToast(getString(R.string.empty_image_warning))
+    }
+    companion object {
+        private const val REQUIRED_PERMISSION = Manifest.permission.CAMERA
     }
 }
